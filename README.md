@@ -63,12 +63,90 @@ The `scripts/` directory contains ordered scripts necessary to train the model
     - **categorical encodings**: We include some one-hot encoded categorical features (e.g., rain, snow, wind, visibility intensity categories) for optional exploration of these features in capturing nonlinearities in the data.
         - An example of this motivation can be seen in the `Correspondence Analysis` section of `notebooks/3_timeseries_forecasting.ipynb`, where `heavy rain` is supposedly less-associated with risk than `moderate rain`, likely suggesting less people actually drive and/or people drive more cautiously during such conditions.
 
+```
+# Example call
+python -m scripts.03_feature_engineer \
+    --load ./data/processed/02_aggregated.csv \
+    --save ./data/processed/03_features.csv \
+    --config ./config/interaction_effects.yaml \
+    --include-interactions \
+    --include-lags
+```
+
 4. `scripts/04_train_nonspatial_model.py`: Runs [Bayesian inference](https://en.wikipedia.org/wiki/Bayesian_inference) using [PyMC](https://www.pymc.io/welcome.html).
     - ***Requires a config file name as a command line argument*** (see `config/models/`)
     
 ```
-// Example call
+# Example call
 python -m scripts.04_train_nonspatial_model.py --config-file model1.yml
+```
+
+```yml
+# Example config template setup
+
+# Overview (metadata)
+name: non_spatial_model_1
+description: "Simple model without spatial effects (includes 1M subsample of 6M total points)"
+version: "0.1"
+
+# Included features from dataframe
+features: [rain, rain_lag_1h, rain_lag_2h, rain_lag_3h, snow, snow_lag_1h, snow_lag_2h, snow_lag_3h, visibility, is_rush_hour, is_weekend, location_total_accidents, is_late_night, is_school_hours, cos_day_of_year, sin_day_of_year, cos_hour, sin_hour, cos_day_of_week, sin_day_of_week]
+
+# Prior specifications
+priors:
+  coefficients:
+    rain:
+      distribution: "Normal"
+      params:
+        mu: 0.1
+        sigma: 0.3
+    snow:
+      distribution: "Normal"
+      params:
+        mu: 0.15
+        sigma: 0.3
+    visibility:
+      distribution: "Normal"
+      params:
+        mu: -0.2
+        sigma: 0.3
+
+    location_total_accidents:
+      distribution: "Normal"
+      params:
+        mu: 0.2
+        sigma: 0.3
+
+  default_coefficient: # all other features not specified will inherit this prior
+    distribution: "Normal"
+    params:
+      mu: 0
+      sigma: 0.5
+  
+  intercept:
+    distribution: "Normal"
+    params:
+      mu: 0
+      sigma: 1
+
+# Model specifications
+model:
+  likelihood: "Poisson"
+  link: "log"
+  hierarchical: false
+
+# Sampling
+sampling:
+  method: "advi" # 'advi' or 'mcmc'
+  chains: 4 # only supported for 'mcmc'
+  iterations: 20000
+  warmup: 1000 # only supported for 'mcmc'
+  target_accept: 0.95 # only supported for 'mcmc'
+  max_treedepth: 10 # only supported for 'mcmc'
+
+# Number of samples from the dataset (for )
+num_samples: 1000000
+
 ```
 
 
