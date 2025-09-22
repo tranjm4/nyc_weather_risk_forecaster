@@ -1,5 +1,7 @@
 # NYC Traffic-Weather Risk Forecaster
 
+![Scatterplot map of locations of accidents in New York City, resembling shape of the city itself](public/map.png)
+
 This tool aims to provide visual interpretations to the risk of traffic incidents in New York City based on current weather conditions.
 
 As one of the most densely populated cities with highly variable weather, it is of our interest to be able to identify how weather conditions affect particular regions in the city. A consequence of this is the ability to proactively station emergency resources accordingly to reduce response times to accident locations.
