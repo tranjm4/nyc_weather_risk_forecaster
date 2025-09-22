@@ -1,0 +1,61 @@
+# Config for first model
+
+name: non_spatial_model_2
+description: "Simple model without spatial effects (includes all 6M datapoints)"
+version: "0.1"
+
+features: [rain, rain_lag_1h, rain_lag_2h, rain_lag_3h, snow, snow_lag_1h, snow_lag_2h, snow_lag_3h, visibility, is_rush_hour, is_weekend, location_total_accidents, is_late_night, is_school_hours, cos_day_of_year, sin_day_of_year, cos_hour, sin_hour, cos_day_of_week, sin_day_of_week]
+
+# Prior specifications
+priors:
+  coefficients:
+    rain:
+      distribution: "Normal"
+      params:
+        mu: 0.1
+        sigma: 0.3
+    snow:
+      distribution: "Normal"
+      params:
+        mu: 0.15
+        sigma: 0.3
+    visibility:
+      distribution: "Normal"
+      params:
+        mu: -0.2
+        sigma: 0.3
+
+    location_total_accidents:
+      distribution: "Normal"
+      params:
+        mu: 0.2
+        sigma: 0.3
+
+  default_coefficient:
+    distribution: "Normal"
+    params:
+      mu: 0
+      sigma: 0.5
+  
+  intercept:
+    distribution: "Normal"
+    params:
+      mu: 0
+      sigma: 1
+
+# Model specifications
+model:
+  likelihood: "Poisson"
+  link: "log"
+  hierarchical: false
+
+# Sampling
+sampling:
+  method: "advi"
+  chains: 4
+  iterations: 100000
+  warmup: 1000
+  target_accept: 0.95
+  max_treedepth: 10
+
+num_samples: -1

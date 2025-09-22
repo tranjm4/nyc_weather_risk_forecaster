@@ -1,0 +1,27 @@
+# Configuration for interaction effects in traffic risk forecasting experiments
+
+# Weather-Time Interactions (most relevant for traffic safety)
+weather_time_interactions:
+  enabled: true
+  interactions:
+    # Rain during rush hour (high traffic + slippery conditions)
+    - name: "rain_during_rush"
+      features: ["rain", "is_rush_hour"]
+      operation: "multiply"
+
+    # Poor visibility at night
+    - name: "poor_vis_at_night"
+      features: ["visibility", "hour"]
+      operation: "custom"
+      custom_logic: "(visibility < 1000) & ((hour >= 20) | (hour <= 6))"
+
+# General Settings
+settings:
+  # Prefix for interaction feature names
+  interaction_prefix: "interact_"
+
+  # Whether to validate that required features exist before creating interactions
+  validate_features: true
+
+  # Whether to create interaction features only if both/all base features are non-null
+  require_non_null: true
